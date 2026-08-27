@@ -8,6 +8,7 @@ from .coding_agent_bridge import CodingAgentBridgeService
 from .outbound_call_service import OutboundCallService
 from .travel_ride_service import TravelRideService
 from .action_dispatcher import ActionDispatcher
+from .android_device_agent import AndroidDeviceAgent
 
 __all__ = [
     "MultiPlatformSearchService",
@@ -19,5 +20,6 @@ __all__ = [
     "CodingAgentBridgeService",
     "OutboundCallService",
     "TravelRideService",
-    "ActionDispatcher"
+    "ActionDispatcher",
+    "AndroidDeviceAgent"
 ]

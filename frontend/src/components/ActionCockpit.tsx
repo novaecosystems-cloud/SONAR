@@ -1,17 +1,42 @@
 "use client";
 
 import React, { useState } from "react";
-import { Terminal, PhoneCall, Car, Plane, CheckCircle2, Play, ExternalLink, Sparkles, Loader2, GitPullRequest, Clock, ShieldCheck, MapPin, Radio } from "lucide-react";
+import { Terminal, PhoneCall, Car, Plane, CheckCircle2, Play, ExternalLink, Sparkles, Loader2, GitPullRequest, Clock, ShieldCheck, MapPin, Radio, Smartphone, Download, ArrowRight } from "lucide-react";
 
 interface ActionCockpitProps {
   onActionExecuted: (summary: string) => void;
 }
 
 export const ActionCockpit: React.FC<ActionCockpitProps> = ({ onActionExecuted }) => {
-  const [activeTab, setActiveTab] = useState<"code" | "call" | "ride" | "flight">("code");
+  const [activeTab, setActiveTab] = useState<"device" | "code" | "call" | "ride" | "flight">("device");
   const [loading, setLoading] = useState(false);
   const [resultData, setResultData] = useState<any>(null);
   const [telephonyProvider, setTelephonyProvider] = useState<"fonoster" | "twilio">("fonoster");
+
+  // 0. On-Device Mobile App Automation (MakeMyTrip, Uber, Rapido)
+  const handleAutomateDeviceApp = async (appKey: string, dest: string, orig: string = "Delhi DEL", date: string = "2026-09-04") => {
+    setLoading(true);
+    setResultData(null);
+    try {
+      const res = await fetch("http://localhost:8000/api/v1/device/automate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          app_key: appKey,
+          destination: dest,
+          origin: orig,
+          flight_date: date
+        })
+      });
+      const data = await res.json();
+      setResultData(data);
+      onActionExecuted(data.spoken_feedback);
+    } catch (e) {
+      console.error("Device automation error:", e);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   // 1. Coding Agent Execution
   const handleRunCodeTask = async (instruction: string, agentType: string = "claude_code") => {
@@ -128,12 +153,19 @@ export const ActionCockpit: React.FC<ActionCockpitProps> = ({ onActionExecuted }
             <h2 className="text-xs font-bold font-mono tracking-wider text-white uppercase">
               SUPER-AGENT ACTION HUB
             </h2>
-            <p className="text-[11px] text-gray-400">Autonomous Coding, Fonoster Open-Source Calling, Uber/Rapido & Flights</p>
+            <p className="text-[11px] text-gray-400">On-Device App Automation, Fonoster Calls, Claude Code & Booking</p>
           </div>
         </div>
 
         {/* Tab Switcher */}
-        <div className="flex items-center gap-1.5 bg-black/50 p-1 rounded-xl border border-white/5 font-mono text-xs">
+        <div className="flex flex-wrap items-center gap-1.5 bg-black/50 p-1 rounded-xl border border-white/5 font-mono text-xs">
+          <button
+            onClick={() => { setActiveTab("device"); setResultData(null); }}
+            className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${activeTab === "device" ? "bg-cyan-500 text-black font-bold" : "text-gray-400 hover:text-white"}`}
+          >
+            <Smartphone className="w-3.5 h-3.5" />
+            <span>App Automator</span>
+          </button>
           <button
             onClick={() => { setActiveTab("code"); setResultData(null); }}
             className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors ${activeTab === "code" ? "bg-cyan-500 text-black font-bold" : "text-gray-400 hover:text-white"}`}
@@ -164,6 +196,99 @@ export const ActionCockpit: React.FC<ActionCockpitProps> = ({ onActionExecuted }
           </button>
         </div>
       </div>
+
+      {/* Tab 0: On-Device Mobile App Automation */}
+      {activeTab === "device" && (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between text-xs">
+            <span className="text-gray-300 font-bold">On-Device Autonomous App Control & Auto-Installer:</span>
+            <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/30">
+              Auto-Install from Play Store if Missing
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+            <button
+              onClick={() => handleAutomateDeviceApp("makemytrip", "Bangalore BLR", "Delhi DEL")}
+              disabled={loading}
+              className="p-3.5 rounded-xl bg-white/5 hover:bg-red-950/30 border border-white/5 hover:border-red-500/40 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono text-red-400 mb-1">
+                <span>MakeMyTrip</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-xs font-bold text-white mb-1">Auto-Book DEL ➔ BLR Flight</p>
+              <p className="text-[10px] text-gray-400">Installs MakeMyTrip if uninstalled, launches intent & fills route.</p>
+            </button>
+
+            <button
+              onClick={() => handleAutomateDeviceApp("uber", "Terminal 3 Airport", "Current Location")}
+              disabled={loading}
+              className="p-3.5 rounded-xl bg-white/5 hover:bg-black border border-white/5 hover:border-white/30 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono text-gray-300 mb-1">
+                <span>Uber Cabs</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-xs font-bold text-white mb-1">Auto-Book Uber to Airport</p>
+              <p className="text-[10px] text-gray-400">Opens Uber app or Play Store, sets drop-off & comfort tier.</p>
+            </button>
+
+            <button
+              onClick={() => handleAutomateDeviceApp("rapido", "Indiranagar Metro", "Current Location")}
+              disabled={loading}
+              className="p-3.5 rounded-xl bg-white/5 hover:bg-yellow-950/30 border border-white/5 hover:border-yellow-500/40 text-left transition-all group"
+            >
+              <div className="flex items-center justify-between text-[10px] font-mono text-yellow-400 mb-1">
+                <span>Rapido Bike/Auto</span>
+                <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              </div>
+              <p className="text-xs font-bold text-white mb-1">Auto-Book Rapido to Metro</p>
+              <p className="text-[10px] text-gray-400">Dispatches Rapido intent with GPS coordinates.</p>
+            </button>
+          </div>
+
+          {/* Execution Pipeline Trace */}
+          {resultData && resultData.package_id && (
+            <div className="p-4 rounded-xl bg-black/60 border border-cyan-500/30 font-mono text-xs space-y-3">
+              <div className="flex items-center justify-between border-b border-white/10 pb-2 text-cyan-300">
+                <span className="flex items-center gap-1.5">
+                  <Smartphone className="w-4 h-4 text-cyan-400" />
+                  <span>ON-DEVICE EXECUTION: {resultData.app_name} ({resultData.package_id})</span>
+                </span>
+                <span className="text-[10px] text-emerald-400 bg-emerald-950/50 px-2 py-0.5 rounded border border-emerald-500/30">
+                  Ready to Dispatch
+                </span>
+              </div>
+
+              <div className="space-y-1.5">
+                {resultData.execution_steps?.map((step: any) => (
+                  <div key={step.step_number} className="flex items-center gap-2 text-gray-300 text-[11px]">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                    <span className="text-cyan-400 font-bold">Step {step.step_number}:</span>
+                    <span>{step.description}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+                <div className="text-[10px] text-gray-400 font-mono truncate max-w-sm">
+                  ADB Intent: {resultData.adb_commands?.[1]}
+                </div>
+                <a
+                  href={resultData.deep_link_intent_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-cyan-500/30"
+                >
+                  <span>Launch on Mobile Device</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Tab 1: Coding Agent Delegation */}
       {activeTab === "code" && (

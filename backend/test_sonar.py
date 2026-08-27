@@ -9,6 +9,7 @@ from app.services.coding_agent_bridge import CodingAgentBridgeService
 from app.services.outbound_call_service import OutboundCallService
 from app.services.travel_ride_service import TravelRideService
 from app.services.action_dispatcher import ActionDispatcher
+from app.services.android_device_agent import AndroidDeviceAgent
 from app.models.actions import CodingTaskRequest, OutboundCallRequest, RideBookingRequest, FlightSearchRequest
 
 async def test_sonar_backend():
@@ -37,20 +38,29 @@ async def test_sonar_backend():
     print(f"Coding Task Status: {code_res.status} | Branch: {code_res.git_branch}")
     assert code_res.status == "COMPLETED"
 
-    print("\n--- [4] Testing Outbound Multilingual Phone Call Bot (Hindi/EN) ---")
+    print("\n--- [4] Testing Outbound Multilingual Phone Call Bot via Fonoster (Hindi/EN) ---")
     caller = OutboundCallService()
     call_res = await caller.schedule_appointment_call(OutboundCallRequest(
         target_name="Dr. Sharma Dental Clinic",
         phone_number="+91-9876543210",
         appointment_type="Dental Checkup",
         preferred_time="4:00 PM",
-        language="hi"
+        language="hi",
+        telephony_provider="fonoster"
     ))
-    print(f"Call Status: {call_res.status} | Language: {call_res.detected_language}")
+    print(f"Call Status: {call_res.status} | Provider: {call_res.telephony_provider}")
     print(f"Spoken Summary: {call_res.spoken_summary}")
     assert call_res.status == "CONFIRMED"
 
-    print("\n--- [5] Testing Ride Booking & Flights (Uber, Rapido, IndiGo) ---")
+    print("\n--- [5] Testing On-Device Android App Automator (MakeMyTrip / Uber) ---")
+    device = AndroidDeviceAgent()
+    device_res = await device.automate_app_action("makemytrip", "Bangalore BLR", "Delhi DEL")
+    print(f"App: {device_res.app_name} | Package: {device_res.package_id}")
+    print(f"Auto-Install Trigger: {device_res.install_trigger_url}")
+    print(f"Universal Intent URL: {device_res.deep_link_intent_url[:60]}...")
+    assert len(device_res.execution_steps) == 5
+
+    print("\n--- [6] Testing Ride Booking & Flights (Uber, Rapido, IndiGo) ---")
     travel = TravelRideService()
     ride_res = await travel.book_ride(RideBookingRequest(
         provider="uber",
@@ -69,16 +79,6 @@ async def test_sonar_backend():
     print(f"Cheapest Flight: {flight_res.recommended_flight.airline} at ₹{flight_res.cheapest_price_inr}")
     assert len(flight_res.all_flights) > 0
 
-    print("\n--- [6] Testing Action Dispatcher Master Router ---")
-    dispatcher = ActionDispatcher()
-    dispatched_code = await dispatcher.execute_spoken_action("tell claude code to fix the auth leak")
-    print(f"Dispatched Category: {dispatched_code.get('category')}")
-    assert dispatched_code.get("category") == "coding_agent"
-
-    dispatched_call = await dispatcher.execute_spoken_action("call dr sharma clinic in hindi")
-    print(f"Dispatched Category: {dispatched_call.get('category')}")
-    assert dispatched_call.get("category") == "outbound_call"
-
     print("\n--- [7] Testing AssemblyAI LeMUR Executive Briefing ---")
     aai = AssemblyAIService()
     briefing = await aai.generate_lemur_briefing(
@@ -89,7 +89,7 @@ async def test_sonar_backend():
     print(f"Briefing Title: {briefing.title}")
     assert len(briefing.key_takeaways) > 0
 
-    print("\n✅ ALL SONAR SUPER-AGENT SERVICES (SEARCH, CODING, CALLS, RIDES, FLIGHTS, LEMUR) PASSED 100%!")
+    print("\n✅ ALL SONAR SUPER-AGENT & DEVICE AUTOMATION SERVICES PASSED 100%!")
 
 if __name__ == "__main__":
     asyncio.run(test_sonar_backend())

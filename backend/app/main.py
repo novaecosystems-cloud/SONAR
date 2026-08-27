@@ -34,6 +34,7 @@ from .services.coding_agent_bridge import CodingAgentBridgeService
 from .services.outbound_call_service import OutboundCallService
 from .services.travel_ride_service import TravelRideService
 from .services.action_dispatcher import ActionDispatcher
+from .services.android_device_agent import AndroidDeviceAgent, DeviceAutomationResponse
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -60,6 +61,7 @@ coding_service = CodingAgentBridgeService()
 call_service = OutboundCallService()
 travel_service = TravelRideService()
 action_dispatcher = ActionDispatcher()
+device_agent = AndroidDeviceAgent()
 
 class APIKeyPayload(BaseModel):
     api_key: str
@@ -80,6 +82,12 @@ class WebhookDispatchPayload(BaseModel):
 
 class ActionDispatchPayload(BaseModel):
     query: str
+
+class DeviceAutomationPayload(BaseModel):
+    app_key: str # "makemytrip" | "uber" | "rapido"
+    destination: str
+    origin: Optional[str] = "Current Location"
+    flight_date: Optional[str] = "2026-09-04"
 
 @app.get("/")
 async def root():
@@ -103,7 +111,8 @@ async def health_check():
             "Real-Time Web News Adapter",
             "Podcast & Media Ingestion Engine",
             "Claude Code & Antigravity SWE Bridge",
-            "Multilingual Outbound Telephony Dialer",
+            "Fonoster Open-Source Telephony Dialer",
+            "Android On-Device App Automator",
             "Uber & Rapido Deep Link Ride Engine",
             "Flight Search & Booking Aggregator",
             "Telegram & Slack Dispatch Gateway",
@@ -170,7 +179,7 @@ async def execute_coding_task(payload: CodingTaskRequest):
 
 @app.post("/api/v1/actions/call", response_model=OutboundCallResponse)
 async def execute_outbound_call(payload: OutboundCallRequest):
-    """Executes multilingual appointment booking call."""
+    """Executes multilingual appointment booking call via Fonoster."""
     return await call_service.schedule_appointment_call(payload)
 
 @app.post("/api/v1/actions/ride", response_model=RideBookingResponse)
@@ -182,6 +191,16 @@ async def book_ride_action(payload: RideBookingRequest):
 async def search_flights_action(payload: FlightSearchRequest):
     """Searches live airfare rates and flight booking links."""
     return await travel_service.search_flights(payload)
+
+@app.post("/api/v1/device/automate", response_model=DeviceAutomationResponse)
+async def automate_device_app(payload: DeviceAutomationPayload):
+    """Controls on-device mobile app installation and booking automation."""
+    return await device_agent.automate_app_action(
+        app_key=payload.app_key,
+        destination=payload.destination,
+        origin=payload.origin or "Current Location",
+        flight_date=payload.flight_date
+    )
 
 @app.post("/api/v1/settings/api-key")
 async def update_api_key(payload: APIKeyPayload):
