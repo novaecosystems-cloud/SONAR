@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Header } from "@/components/Header";
 import { LandingHero } from "@/components/LandingHero";
 import { FeaturesMatrix } from "@/components/FeaturesMatrix";
@@ -18,6 +18,10 @@ import { BriefingModal, ExecutiveBriefing } from "@/components/BriefingModal";
 import { StickyMobileCTA } from "@/components/StickyMobileCTA";
 import { CookieBanner } from "@/components/CookieBanner";
 import { LegalModals } from "@/components/LegalModals";
+import { OnboardingModal } from "@/components/OnboardingModal";
+import { BillingModal } from "@/components/BillingModal";
+import { DataDeletionModal } from "@/components/DataDeletionModal";
+import { SupportModal } from "@/components/SupportModal";
 import { useSonarVoice } from "@/hooks/useSonarVoice";
 import { Mic, PhoneOff, Waves, Sparkles, Terminal } from "lucide-react";
 
@@ -42,10 +46,23 @@ export default function Home() {
   const [briefing, setBriefing] = useState<ExecutiveBriefing | null>(null);
   const [showBriefingModal, setShowBriefingModal] = useState(false);
   const [showPwaModal, setShowPwaModal] = useState(false);
+  const [showOnboardingModal, setShowOnboardingModal] = useState(false);
+  const [showBillingModal, setShowBillingModal] = useState(false);
+  const [showDataDeletionModal, setShowDataDeletionModal] = useState(false);
+  const [showSupportModal, setShowSupportModal] = useState(false);
   const [legalModalType, setLegalModalType] = useState<"privacy" | "terms" | null>(null);
   const [generatingBriefing, setGeneratingBriefing] = useState(false);
 
   const cockpitRef = useRef<HTMLDivElement | null>(null);
+
+  // Auto-prompt onboarding on first visit
+  useEffect(() => {
+    const hasSeenTour = localStorage.getItem("sonar_onboarding_seen");
+    if (!hasSeenTour) {
+      setShowOnboardingModal(true);
+      localStorage.setItem("sonar_onboarding_seen", "true");
+    }
+  }, []);
 
   const handleScrollToCockpit = () => {
     if (cockpitRef.current) {
@@ -125,6 +142,10 @@ export default function Home() {
         sessionDuration={sessionDuration}
         radarStatus={radarStatus}
         isAgentSpeaking={isAgentSpeaking}
+        onOpenOnboarding={() => setShowOnboardingModal(true)}
+        onOpenBilling={() => setShowBillingModal(true)}
+        onOpenSupport={() => setShowSupportModal(true)}
+        onOpenDataDeletion={() => setShowDataDeletionModal(true)}
       />
 
       {/* 1. Weav-Inspired High-Conversion Hero Section */}
@@ -247,7 +268,7 @@ export default function Home() {
       <WorkflowSection />
 
       {/* 5. Transparent Tiered Pricing */}
-      <PricingSection onSelectPlan={(plan) => handleScrollToCockpit()} />
+      <PricingSection onSelectPlan={(plan) => setShowBillingModal(true)} />
 
       {/* 6. Footer */}
       <Footer
@@ -269,6 +290,31 @@ export default function Home() {
       <PWAInstallModal
         isOpen={showPwaModal}
         onClose={() => setShowPwaModal(false)}
+      />
+
+      {/* Interactive Onboarding Tour Modal */}
+      <OnboardingModal
+        isOpen={showOnboardingModal}
+        onClose={() => setShowOnboardingModal(false)}
+        onStartCockpit={handleScrollToCockpit}
+      />
+
+      {/* Billing & Restore Purchases Modal */}
+      <BillingModal
+        isOpen={showBillingModal}
+        onClose={() => setShowBillingModal(false)}
+      />
+
+      {/* GDPR Data Deletion Modal */}
+      <DataDeletionModal
+        isOpen={showDataDeletionModal}
+        onClose={() => setShowDataDeletionModal(false)}
+      />
+
+      {/* Developer Support & Bug Reporter Modal */}
+      <SupportModal
+        isOpen={showSupportModal}
+        onClose={() => setShowSupportModal(false)}
       />
 
       {/* Legal Modals (Privacy & Terms) */}

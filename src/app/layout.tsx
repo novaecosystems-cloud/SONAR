@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 export const metadata: Metadata = {
   title: "Sonar AI — Voice Super-Agent for Real-Time Internet Intelligence",
@@ -62,7 +63,9 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className="sonar-grid antialiased selection:bg-cyan-500 selection:text-black">
-        {children}
+        <ErrorBoundary>
+          {children}
+        </ErrorBoundary>
       </body>
     </html>
   );

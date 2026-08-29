@@ -1,9 +1,14 @@
 "use client";
 
 import React from "react";
-import { Waves, Github, ExternalLink, Sparkles } from "lucide-react";
+import { Waves, Github, ExternalLink } from "lucide-react";
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
+}
+
+export const Footer: React.FC<FooterProps> = ({ onOpenPrivacy, onOpenTerms }) => {
   return (
     <footer className="border-t border-cyan-500/10 bg-[#050810] text-gray-400 text-xs py-14">
       <div className="max-w-7xl mx-auto px-6">
@@ -24,7 +29,7 @@ export const Footer: React.FC = () => {
               The ambient conversational voice super-agent. Installs in seconds as a Progressive Web App (PWA), 
               empowering hands-free research, SWE coding delegation, and multilingual phone calling.
             </p>
-            <div className="pt-2">
+            <div className="pt-2 flex items-center gap-4">
               <a
                 href="https://github.com/novaecosystems-cloud/SONAR"
                 target="_blank"
@@ -45,9 +50,9 @@ export const Footer: React.FC = () => {
             </h4>
             <ul className="space-y-2">
               <li><a href="#features" className="hover:text-cyan-300 transition-colors">Voice Cockpit</a></li>
-              <li><a href="#features" className="hover:text-cyan-300 transition-colors">Action Hub</a></li>
-              <li><a href="#features" className="hover:text-cyan-300 transition-colors">LeMUR Briefings</a></li>
-              <li><a href="#features" className="hover:text-cyan-300 transition-colors">Mobile PWA Install</a></li>
+              <li><a href="#cockpit" className="hover:text-cyan-300 transition-colors">Action Hub</a></li>
+              <li><a href="#cockpit" className="hover:text-cyan-300 transition-colors">LeMUR Briefings</a></li>
+              <li><a href="#cockpit" className="hover:text-cyan-300 transition-colors">Mobile PWA Install</a></li>
             </ul>
           </div>
 
@@ -64,16 +69,30 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Column 3: Resources */}
+          {/* Column 3: Legal & Resources */}
           <div>
             <h4 className="font-bold text-white font-mono uppercase tracking-wider mb-3 text-[11px]">
-              Resources
+              Legal & Support
             </h4>
             <ul className="space-y-2">
-              <li><a href="https://github.com/novaecosystems-cloud/SONAR" target="_blank" rel="noreferrer" className="hover:text-cyan-300 transition-colors">Documentation</a></li>
+              <li>
+                <button
+                  onClick={onOpenPrivacy}
+                  className="hover:text-cyan-300 transition-colors text-left"
+                >
+                  Privacy Policy
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={onOpenTerms}
+                  className="hover:text-cyan-300 transition-colors text-left"
+                >
+                  Terms & Conditions
+                </button>
+              </li>
               <li><a href="#pricing" className="hover:text-cyan-300 transition-colors">Pricing Plans</a></li>
               <li><span className="text-emerald-400">● Systems Operational</span></li>
-              <li><span className="hover:text-cyan-300 transition-colors">lablab.ai Hackathon</span></li>
             </ul>
           </div>
 

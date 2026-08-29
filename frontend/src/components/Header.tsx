@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Radio, Activity, Key, Wifi, Sparkles, Waves } from "lucide-react";
+import { Radio, Activity, Key, Wifi, Sparkles, Waves, HelpCircle, CreditCard, MessageSquare, Trash2 } from "lucide-react";
 import { formatDuration } from "@/lib/utils";
 
 interface HeaderProps {
@@ -10,6 +10,10 @@ interface HeaderProps {
   radarStatus: string;
   isAgentSpeaking: boolean;
   onApiKeySaved?: (key: string) => void;
+  onOpenOnboarding?: () => void;
+  onOpenBilling?: () => void;
+  onOpenSupport?: () => void;
+  onOpenDataDeletion?: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -17,7 +21,11 @@ export const Header: React.FC<HeaderProps> = ({
   sessionDuration,
   radarStatus,
   isAgentSpeaking,
-  onApiKeySaved
+  onApiKeySaved,
+  onOpenOnboarding,
+  onOpenBilling,
+  onOpenSupport,
+  onOpenDataDeletion
 }) => {
   const [showKeyModal, setShowKeyModal] = useState(false);
   const [apiKeyInput, setApiKeyInput] = useState("");
@@ -53,7 +61,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <header className="border-b border-cyan-500/20 bg-[#0a101d]/85 backdrop-blur-md sticky top-0 z-40 px-6 py-3.5 shadow-lg shadow-black/40">
-        <div className="max-w-7xl mx-auto flex items-center justify-between">
+        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-4">
           
           {/* Logo & Platform Info */}
           <div className="flex items-center gap-3.5">
@@ -77,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Center Voice Live Status */}
-          <div className="flex items-center gap-4">
+          <div className="hidden lg:flex items-center gap-4">
             {isLive ? (
               <div className="flex items-center gap-3 bg-cyan-950/40 border border-cyan-500/30 rounded-full px-4 py-1.5 shadow-[0_0_15px_rgba(6,182,212,0.25)]">
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
@@ -99,14 +107,58 @@ export const Header: React.FC<HeaderProps> = ({
           </div>
 
           {/* Right Action Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            {onOpenOnboarding && (
+              <button
+                onClick={onOpenOnboarding}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-cyan-300 font-mono transition-colors"
+                title="Quick Product Tour"
+              >
+                <HelpCircle className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Tour</span>
+              </button>
+            )}
+
+            {onOpenBilling && (
+              <button
+                onClick={onOpenBilling}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 font-mono transition-colors"
+                title="Billing & Restore Purchases"
+              >
+                <CreditCard className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline">Billing</span>
+              </button>
+            )}
+
+            {onOpenSupport && (
+              <button
+                onClick={onOpenSupport}
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 font-mono transition-colors"
+                title="Developer Support & Bug Report"
+              >
+                <MessageSquare className="w-3.5 h-3.5 text-cyan-400" />
+                <span className="hidden sm:inline">Support</span>
+              </button>
+            )}
+
+            {onOpenDataDeletion && (
+              <button
+                onClick={onOpenDataDeletion}
+                className="p-1.5 rounded-lg bg-white/5 hover:bg-red-500/20 border border-white/10 text-xs text-gray-400 hover:text-red-400 font-mono transition-colors"
+                title="Wipe Session Memory (GDPR)"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+
             <button
               onClick={() => setShowKeyModal(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-gray-300 transition-colors font-mono"
             >
               <Key className="w-3.5 h-3.5 text-cyan-400" />
-              <span>AssemblyAI Key</span>
+              <span className="hidden sm:inline">API Key</span>
             </button>
+
             <div className="flex items-center gap-1.5 text-xs text-cyan-400 bg-cyan-950/40 border border-cyan-500/30 px-2.5 py-1 rounded-md">
               <Wifi className="w-3 h-3" />
               <span className="font-mono">ONLINE</span>
