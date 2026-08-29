@@ -1,18 +1,20 @@
 "use client";
 
 import React, { useEffect, useRef } from "react";
-import { MessageSquare, Trash2, Bot, User, Waves } from "lucide-react";
+import { MessageSquare, Trash2, Bot, User, Waves, Sparkles, ArrowRight } from "lucide-react";
 
 interface LiveTranscriptProps {
   transcript: string;
   isLive: boolean;
   onClear?: () => void;
+  onSelectPrompt?: (prompt: string) => void;
 }
 
 export const LiveTranscript: React.FC<LiveTranscriptProps> = ({
   transcript,
   isLive,
-  onClear
+  onClear,
+  onSelectPrompt
 }) => {
   const scrollRef = useRef<HTMLDivElement | null>(null);
 
@@ -33,11 +35,11 @@ export const LiveTranscript: React.FC<LiveTranscriptProps> = ({
           speaker: "user",
           text: line.replace("User:", "").trim()
         };
-      } else if (line.startsWith("Sonar AI:")) {
+      } else if (line.startsWith("Sonar AI:") || line.startsWith("Sonar Super-Agent:")) {
         return {
           id: idx,
           speaker: "sonar",
-          text: line.replace("Sonar AI:", "").trim()
+          text: line.replace("Sonar AI:", "").replace("Sonar Super-Agent:", "").trim()
         };
       }
       return {
@@ -47,6 +49,13 @@ export const LiveTranscript: React.FC<LiveTranscriptProps> = ({
       };
     });
   };
+
+  const starterPrompts = [
+    { label: "🔥 Social Consensus", text: "What are engineers on Reddit and Twitter saying about DeepSeek-R1 vs Claude 3.5 Sonnet?" },
+    { label: "✈️ Flight Search", text: "Check lowest airfares for Mumbai to Dubai this weekend on IndiGo and Emirates." },
+    { label: "🚕 Uber Ride", text: "Book an Uber Premier from Bandra Kurla Complex to Mumbai Airport T2." },
+    { label: "💻 Code Agent", text: "Scaffold an autonomous GitHub workflow with Next.js CI tests using Claude Code." }
+  ];
 
   const turns = parseTurns(transcript);
 
@@ -86,15 +95,39 @@ export const LiveTranscript: React.FC<LiveTranscriptProps> = ({
       {/* Transcript Turn Area */}
       <div
         ref={scrollRef}
-        className="flex-1 min-h-[160px] max-h-[220px] overflow-y-auto bg-black/50 rounded-xl p-4 border border-cyan-500/10 space-y-3"
+        className="flex-1 min-h-[180px] max-h-[260px] overflow-y-auto bg-black/50 rounded-xl p-4 border border-cyan-500/10 space-y-3"
       >
         {turns.length === 0 ? (
-          <div className="h-full flex flex-col items-center justify-center text-gray-500 text-xs py-8 text-center">
-            <Waves className="w-8 h-8 text-cyan-600/40 mb-2 animate-pulse" />
-            <span>Ready for your voice questions.</span>
-            <span className="text-[10px] text-gray-600 mt-1">
-              Click &quot;Start Live Voice&quot; and speak, or select a demo scenario below.
-            </span>
+          <div className="h-full flex flex-col items-center justify-center py-4 text-center">
+            <div className="relative flex items-center justify-center mb-3">
+              <div className="w-10 h-10 rounded-full bg-cyan-500/10 border border-cyan-500/30 flex items-center justify-center text-cyan-400">
+                <Sparkles className="w-5 h-5 animate-pulse" />
+              </div>
+            </div>
+            
+            <h3 className="text-xs font-bold font-mono text-white mb-1">
+              Ready for Live Voice Intercept
+            </h3>
+            <p className="text-[11px] text-gray-400 max-w-sm mb-4 font-sans">
+              Speak into your microphone or tap any starter prompt below to kick off real-time search & synthesis:
+            </p>
+
+            {/* Interactive Starter Chips (Good UX Empty State) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 w-full max-w-lg">
+              {starterPrompts.map((p, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => onSelectPrompt && onSelectPrompt(p.text)}
+                  className="p-2.5 rounded-xl bg-white/[0.03] hover:bg-cyan-950/40 border border-white/10 hover:border-cyan-500/30 text-left transition-all group flex items-center justify-between gap-2"
+                >
+                  <div>
+                    <div className="text-[10px] font-mono font-bold text-cyan-400 mb-0.5">{p.label}</div>
+                    <div className="text-[11px] text-gray-300 truncate max-w-[200px]">{p.text}</div>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-gray-500 group-hover:text-cyan-300 flex-shrink-0 transition-transform group-hover:translate-x-0.5" />
+                </button>
+              ))}
+            </div>
           </div>
         ) : (
           turns.map((turn) => (

@@ -250,6 +250,7 @@ export default function Home() {
             transcript={fullTranscript}
             isLive={isLive}
             onClear={() => setFullTranscript("")}
+            onSelectPrompt={(prompt) => handleSelectScenario(prompt, "Starter Query")}
           />
         </div>
 

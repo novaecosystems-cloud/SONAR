@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Globe, MessageCircle, PlaySquare, Twitter, ExternalLink, Sparkles, Layers } from "lucide-react";
+import { Globe, MessageCircle, PlaySquare, Twitter, ExternalLink, Sparkles, Layers, Radio } from "lucide-react";
 import { SearchSourceItem } from "@/hooks/useSonarVoice";
 import { getPlatformBadgeStyle } from "@/lib/utils";
 
@@ -86,8 +86,10 @@ export const SocialRadar: React.FC<SocialRadarProps> = ({
             >
               <div className="flex items-center justify-between mb-1">
                 <Icon className={`w-4 h-4 ${p.color}`} />
-                {isActive && (
+                {isActive ? (
                   <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping" />
+                ) : (
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400/60" />
                 )}
               </div>
               <div>
@@ -99,18 +101,30 @@ export const SocialRadar: React.FC<SocialRadarProps> = ({
         })}
       </div>
 
-      {/* Live Retrieved Citations Stream */}
+      {/* Live Retrieved Citations Stream / Actionable Empty State */}
       <div className="mt-2 flex-1">
-        <div className="text-[10px] font-mono text-gray-400 uppercase mb-1.5">
-          Recent Citations & Extracted Insights:
+        <div className="text-[10px] font-mono text-gray-400 uppercase mb-1.5 flex items-center justify-between">
+          <span>Recent Citations & Extracted Insights</span>
+          {collectedSources.length === 0 && (
+            <span className="text-cyan-400 font-mono text-[9px] flex items-center gap-1">
+              <Radio className="w-2.5 h-2.5 animate-pulse" />
+              <span>RADAR LISTENING</span>
+            </span>
+          )}
         </div>
+
         {collectedSources.length === 0 ? (
-          <div className="p-3.5 rounded-xl bg-black/30 border border-white/5 text-gray-500 text-xs text-center flex flex-col items-center justify-center">
-            <Sparkles className="w-5 h-5 text-gray-600 mb-1" />
-            <span>Speak a question to pulse Twitter, Reddit, or YouTube in real-time.</span>
+          <div className="p-4 rounded-xl bg-black/40 border border-cyan-500/10 text-gray-400 text-xs flex flex-col items-center justify-center text-center">
+            <div className="flex items-center gap-2 mb-1.5">
+              <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
+              <span className="font-mono text-xs text-white font-bold">Social Channels Standing By</span>
+            </div>
+            <p className="text-[11px] text-gray-400 max-w-xs leading-relaxed font-sans">
+              Speak or pick any query to cross-examine real developer threads, upvoted Reddit consensus, and video benchmarks.
+            </p>
           </div>
         ) : (
-          <div className="space-y-2 max-h-32 overflow-y-auto pr-1">
+          <div className="space-y-2 max-h-36 overflow-y-auto pr-1">
             {collectedSources.slice(0, 6).map((src, i) => {
               const badge = getPlatformBadgeStyle(src.platform);
               return (
