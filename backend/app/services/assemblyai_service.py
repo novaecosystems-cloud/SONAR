@@ -1,7 +1,7 @@
 import os
 import json
 import asyncio
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, Any, Optional, List
 import aiohttp
 from ..config import settings
@@ -95,7 +95,7 @@ class AssemblyAIService:
         return ExecutiveBriefingResponse(
             session_id=session_id,
             title=lemur_result.get("title", "Sonar AI Real-Time Research Briefing"),
-            generated_at=datetime.utcnow().isoformat() + "Z",
+            generated_at=datetime.now(timezone.utc).isoformat(),
             executive_summary=lemur_result.get("executive_summary", "Comprehensive multi-platform consensus analysis."),
             consensus_score=lemur_result.get("consensus_score", "Mixed / Controversial"),
             platform_breakdown=PlatformBreakdown(
